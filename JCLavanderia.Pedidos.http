@@ -1,0 +1,6 @@
+@JCLavanderia.Pedidos_HostAddress = http://localhost:5185
+
+GET {{JCLavanderia.Pedidos_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

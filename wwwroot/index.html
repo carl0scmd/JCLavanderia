@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JC Lavanderia | Gestão de Pedidos</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header class="topo">
+        <div class="topo__conteudo">
+            <h1>Sistema de Gestão de Pedidos</h1>
+            <p>JC Lavanderia Industrial e Hospitalar</p>
+        </div>
+    </header>
+
+    <main class="layout">
+        <section class="card">
+            <h2>Cadastro de Clientes</h2>
+            <form id="cliente-form" class="form-grid">
+                <label>
+                    Nome
+                    <input type="text" id="cliente-nome" required maxlength="150">
+                </label>
+                <label>
+                    Telefone
+                    <input type="text" id="cliente-telefone" maxlength="30">
+                </label>
+                <label>
+                    E-mail
+                    <input type="email" id="cliente-email" maxlength="160">
+                </label>
+                <label class="full">
+                    Endereço
+                    <input type="text" id="cliente-endereco" maxlength="300">
+                </label>
+                <button type="submit">Cadastrar cliente</button>
+            </form>
+            <div id="cliente-feedback" class="feedback"></div>
+        </section>
+
+        <section class="card">
+            <h2>Cadastro de Materiais</h2>
+            <form id="material-form" class="form-grid">
+                <label>
+                    Nome do material
+                    <input type="text" id="material-nome" required maxlength="150">
+                </label>
+                <label class="full">
+                    Descrição
+                    <input type="text" id="material-descricao" maxlength="300">
+                </label>
+                <button type="submit">Cadastrar material</button>
+            </form>
+            <div id="material-feedback" class="feedback"></div>
+        </section>
+
+        <section class="card card--full">
+            <h2>Novo Pedido</h2>
+            <form id="pedido-form" class="form-grid">
+                <label>
+                    Cliente
+                    <select id="pedido-cliente" required></select>
+                </label>
+                <label>
+                    Entrega prevista
+                    <input type="date" id="pedido-entrega">
+                </label>
+                <label class="full">
+                    Observações
+                    <input type="text" id="pedido-observacoes" maxlength="500">
+                </label>
+
+                <div class="full bloco-itens">
+                    <div class="bloco-itens__titulo">
+                        <h3>Itens do pedido</h3>
+                        <button type="button" id="adicionar-item" class="btn-secundario">+ Adicionar item</button>
+                    </div>
+                    <div id="pedido-itens"></div>
+                </div>
+
+                <button type="submit">Criar pedido</button>
+            </form>
+            <div id="pedido-feedback" class="feedback"></div>
+        </section>
+
+        <section class="card card--full">
+            <h2>Listagem de Pedidos</h2>
+            <div id="pedidos-lista" class="pedidos-lista"></div>
+        </section>
+    </main>
+
+    <script src="/app.js"></script>
+</body>
+</html>
