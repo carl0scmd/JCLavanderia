@@ -78,12 +78,31 @@ public class MateriaisController(AppDbContext context) : ControllerBase
             return NotFound(new { message = "Material não encontrado." });
         }
 
-        var emUso = await context.PedidoItens.AnyAsync(i => i.MaterialId == id);
-        if (emUso)
-        {
-            return BadRequest(new { message = "Material está em uso em um pedido e não pode ser excluído." });
-        }
+        var pedidoIdsComMaterial = await context.PedidoItens
+            .Where(i => i.MaterialId == id)
+            .Select(i => i.PedidoId)
+            .Distinct()
+            .ToListAsync();
 
+        var pedidoIdsParaExcluir = pedidoIdsComMaterial.Count == 0
+            ? []
+            : await context.PedidoItens
+                .Where(i => pedidoIdsComMaterial.Contains(i.PedidoId))
+                .GroupBy(i => i.PedidoId)
+                .Where(g => g.All(i => i.MaterialId == id))
+                .Select(g => g.Key)
+                .ToListAsync();
+
+        var itensParaRemover = await context.PedidoItens
+            .Where(i => i.MaterialId == id && !pedidoIdsParaExcluir.Contains(i.PedidoId))
+            .ToListAsync();
+
+        var pedidosParaExcluir = await context.Pedidos
+            .Where(p => pedidoIdsParaExcluir.Contains(p.Id))
+            .ToListAsync();
+
+        context.PedidoItens.RemoveRange(itensParaRemover);
+        context.Pedidos.RemoveRange(pedidosParaExcluir);
         context.Materiais.Remove(material);
         await context.SaveChangesAsync();
 

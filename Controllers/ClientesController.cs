@@ -105,12 +105,11 @@ public class ClientesController(AppDbContext context) : ControllerBase
             return NotFound(new { message = "Cliente não encontrado." });
         }
 
-        var comPedidos = await context.Pedidos.AnyAsync(p => p.ClienteId == id);
-        if (comPedidos)
-        {
-            return BadRequest(new { message = "Cliente possui pedidos e não pode ser excluído." });
-        }
+        var pedidos = await context.Pedidos
+            .Where(p => p.ClienteId == id)
+            .ToListAsync();
 
+        context.Pedidos.RemoveRange(pedidos);
         context.Clientes.Remove(cliente);
         await context.SaveChangesAsync();
 
