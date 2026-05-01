@@ -146,6 +146,12 @@ function registrarEventos() {
             const btn = e.target.classList.contains("btn-remove-mini") ? e.target : e.target.closest(".btn-remove-mini");
             await removerPedido(Number(btn.dataset.removeId));
             await carregarSemana();
+            return;
+        }
+
+        const card = e.target.closest(".pedido-card-mini");
+        if (card) {
+            alternarDetalheSemana(Number(card.dataset.pedidoId));
         }
     });
 
@@ -544,7 +550,7 @@ function renderizarSemana() {
             <div class="semana-pedidos">
                 ${dia.pedidos.length === 0 ? "<p class='vazio'>Nenhum pedido</p>" :
                 dia.pedidos.map(p => `
-                    <article class="pedido-card-mini">
+                    <article class="pedido-card-mini" data-pedido-id="${p.id}" role="button" tabindex="0">
                         <span class="pedido-id">#${p.id}</span>
                         <span class="pedido-cliente">${escapeHtml(p.clienteNome)}</span>
                         <div class="pedido-mini-actions">
@@ -558,10 +564,67 @@ function renderizarSemana() {
                             ` : ""}
                         </div>
                     </article>
+                    <div class="pedido-detalhe-semana" id="pedido-detalhe-${p.id}" hidden></div>
                 `).join("")}
             </div>
         </div>
     `).join("");
+}
+
+function alternarDetalheSemana(pedidoId) {
+    const detalhe = document.getElementById(`pedido-detalhe-${pedidoId}`);
+    const pedido = estado.pedidos.find(p => p.id === pedidoId);
+    if (!detalhe || !pedido) return;
+
+    const abrir = detalhe.hidden;
+    document.querySelectorAll(".pedido-detalhe-semana").forEach(el => {
+        el.hidden = true;
+        el.innerHTML = "";
+    });
+
+    document.querySelectorAll(".pedido-card-mini").forEach(card => {
+        card.classList.toggle("active", Number(card.dataset.pedidoId) === pedidoId && abrir);
+    });
+
+    if (!abrir) return;
+
+    detalhe.innerHTML = renderizarDetalheSemana(pedido);
+    detalhe.hidden = false;
+}
+
+function renderizarDetalheSemana(pedido) {
+    const itens = pedido.itens?.length
+        ? pedido.itens.map(item => `
+            <li>
+                <strong>${escapeHtml(item.materialNome)}</strong>
+                <span>${item.quantidade} un.</span>
+                ${item.observacao ? `<small>${escapeHtml(item.observacao)}</small>` : ""}
+            </li>
+        `).join("")
+        : "<li><span>Nenhum material informado.</span></li>";
+
+    return `
+        <div class="detalhe-grid">
+            <div>
+                <span>Cliente</span>
+                <strong>${escapeHtml(pedido.clienteNome)}</strong>
+            </div>
+            <div>
+                <span>Status</span>
+                <strong>${obterStatusLabel(pedido.status)}</strong>
+            </div>
+            <div>
+                <span>Criado em</span>
+                <strong>${formatarData(pedido.criadoEm)}</strong>
+            </div>
+            <div>
+                <span>Entrega</span>
+                <strong>${pedido.dataEntregaPrevista ? formatarData(pedido.dataEntregaPrevista) : "Sem previsão"}</strong>
+            </div>
+        </div>
+        ${pedido.observacoes ? `<p class="detalhe-observacao">${escapeHtml(pedido.observacoes)}</p>` : ""}
+        <ul class="detalhe-itens">${itens}</ul>
+    `;
 }
 
 async function carregarPedidos() {

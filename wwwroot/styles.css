@@ -1035,8 +1035,17 @@ svg {
     align-items: start;
     padding: 10px 12px;
     background: var(--bg);
+    border: 1px solid transparent;
     border-radius: var(--radius-xs);
+    cursor: pointer;
     font-size: 0.875rem;
+    transition: border-color 160ms ease, background 160ms ease;
+}
+
+.pedido-card-mini:hover,
+.pedido-card-mini.active {
+    border-color: var(--line-strong);
+    background: var(--surface-2);
 }
 
 .pedido-card-mini .pedido-id {
@@ -1066,6 +1075,72 @@ svg {
     gap: 8px;
 }
 
+.pedido-detalhe-semana {
+    margin: -2px 0 8px 58px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: #fff;
+}
+
+.detalhe-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.detalhe-grid div {
+    min-width: 0;
+}
+
+.detalhe-grid span {
+    display: block;
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.detalhe-grid strong {
+    display: block;
+    margin-top: 2px;
+    overflow-wrap: anywhere;
+    color: var(--ink);
+    font-size: 0.86rem;
+}
+
+.detalhe-observacao {
+    margin: 10px 0 0;
+    color: var(--ink-3);
+    font-size: 0.86rem;
+}
+
+.detalhe-itens {
+    display: grid;
+    gap: 6px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.detalhe-itens li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 12px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+}
+
+.detalhe-itens strong {
+    overflow-wrap: anywhere;
+}
+
+.detalhe-itens small {
+    grid-column: 1 / -1;
+    color: var(--muted);
+}
+
 @media (max-width: 620px) {
     .pedido-card-mini {
         grid-template-columns: 44px minmax(0, 1fr);
@@ -1074,6 +1149,14 @@ svg {
     .pedido-mini-actions {
         grid-column: 2;
         justify-content: flex-start;
+    }
+
+    .pedido-detalhe-semana {
+        margin-left: 0;
+    }
+
+    .detalhe-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
