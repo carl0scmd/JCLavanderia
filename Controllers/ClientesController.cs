@@ -11,14 +11,31 @@ namespace JCLavanderia.Pedidos.Controllers;
 public class ClientesController(AppDbContext context) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ClienteResponse>>> Listar()
+    public async Task<ActionResult<PagedResult<ClienteResponse>>> Listar(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 50,
+        [FromQuery] string? search = null)
     {
-        var clientes = await context.Clientes
-            .AsNoTracking()
+        (page, pageSize) = ControllerHelpers.NormalizePaging(page, pageSize);
+
+        var query = context.Clientes.AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(c =>
+                c.Nome.Contains(term) ||
+                (c.Email != null && c.Email.Contains(term)) ||
+                (c.Telefone != null && c.Telefone.Contains(term)));
+        }
+
+        var totalCount = await query.CountAsync();
+        var clientes = await query
             .OrderBy(c => c.Nome)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
-        return Ok(clientes.Select(ClienteResponse.FromEntity));
+        return Ok(PagedResult.Create(clientes.Select(ClienteResponse.FromEntity), totalCount, page, pageSize));
     }
 
     [HttpGet("{id:int}")]
@@ -36,18 +53,67 @@ public class ClientesController(AppDbContext context) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<ClienteResponse>> Criar([FromBody] CriarClienteRequest request)
     {
+        if (ControllerHelpers.IsBlank(request.Nome))
+        {
+            return ControllerHelpers.BadRequestMessage("Nome é obrigatório.");
+        }
+
         var cliente = new Cliente
         {
-            Nome = request.Nome.Trim(),
-            Telefone = string.IsNullOrWhiteSpace(request.Telefone) ? null : request.Telefone.Trim(),
-            Email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim(),
-            Endereco = string.IsNullOrWhiteSpace(request.Endereco) ? null : request.Endereco.Trim()
+            Nome = ControllerHelpers.CleanRequired(request.Nome),
+            Telefone = ControllerHelpers.CleanOptional(request.Telefone),
+            Email = ControllerHelpers.CleanOptional(request.Email),
+            Endereco = ControllerHelpers.CleanOptional(request.Endereco)
         };
 
         context.Clientes.Add(cliente);
         await context.SaveChangesAsync();
 
-        var response = ClienteResponse.FromEntity(cliente);
-        return CreatedAtAction(nameof(ObterPorId), new { id = cliente.Id }, response);
+        return CreatedAtAction(nameof(ObterPorId), new { id = cliente.Id }, ClienteResponse.FromEntity(cliente));
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<ClienteResponse>> Atualizar(int id, [FromBody] AtualizarClienteRequest request)
+    {
+        var cliente = await context.Clientes.FirstOrDefaultAsync(c => c.Id == id);
+        if (cliente is null)
+        {
+            return NotFound(new { message = "Cliente não encontrado." });
+        }
+
+        if (ControllerHelpers.IsBlank(request.Nome))
+        {
+            return ControllerHelpers.BadRequestMessage("Nome é obrigatório.");
+        }
+
+        cliente.Nome = ControllerHelpers.CleanRequired(request.Nome);
+        cliente.Telefone = ControllerHelpers.CleanOptional(request.Telefone);
+        cliente.Email = ControllerHelpers.CleanOptional(request.Email);
+        cliente.Endereco = ControllerHelpers.CleanOptional(request.Endereco);
+
+        await context.SaveChangesAsync();
+
+        return Ok(ClienteResponse.FromEntity(cliente));
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var cliente = await context.Clientes.FindAsync(id);
+        if (cliente is null)
+        {
+            return NotFound(new { message = "Cliente não encontrado." });
+        }
+
+        var comPedidos = await context.Pedidos.AnyAsync(p => p.ClienteId == id);
+        if (comPedidos)
+        {
+            return BadRequest(new { message = "Cliente possui pedidos e não pode ser excluído." });
+        }
+
+        context.Clientes.Remove(cliente);
+        await context.SaveChangesAsync();
+
+        return NoContent();
     }
 }

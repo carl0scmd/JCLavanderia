@@ -1,95 +1,319 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JC Lavanderia | Gestão de Pedidos</title>
+    <title>JC Lavanderia | Gestão Operacional</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Libre+Baskerville:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>JC</text></svg>">
 </head>
 <body>
-    <header class="topo">
-        <div class="topo__conteudo">
-            <h1>Sistema de Gestão de Pedidos</h1>
-            <p>JC Lavanderia Industrial e Hospitalar</p>
-        </div>
-    </header>
-
-    <main class="layout">
-        <section class="card">
-            <h2>Cadastro de Clientes</h2>
-            <form id="cliente-form" class="form-grid">
-                <label>
-                    Nome
-                    <input type="text" id="cliente-nome" required maxlength="150">
-                </label>
-                <label>
-                    Telefone
-                    <input type="text" id="cliente-telefone" maxlength="30">
-                </label>
-                <label>
-                    E-mail
-                    <input type="email" id="cliente-email" maxlength="160">
-                </label>
-                <label class="full">
-                    Endereço
-                    <input type="text" id="cliente-endereco" maxlength="300">
-                </label>
-                <button type="submit">Cadastrar cliente</button>
-            </form>
-            <div id="cliente-feedback" class="feedback"></div>
-        </section>
-
-        <section class="card">
-            <h2>Cadastro de Materiais</h2>
-            <form id="material-form" class="form-grid">
-                <label>
-                    Nome do material
-                    <input type="text" id="material-nome" required maxlength="150">
-                </label>
-                <label class="full">
-                    Descrição
-                    <input type="text" id="material-descricao" maxlength="300">
-                </label>
-                <button type="submit">Cadastrar material</button>
-            </form>
-            <div id="material-feedback" class="feedback"></div>
-        </section>
-
-        <section class="card card--full">
-            <h2>Novo Pedido</h2>
-            <form id="pedido-form" class="form-grid">
-                <label>
-                    Cliente
-                    <select id="pedido-cliente" required></select>
-                </label>
-                <label>
-                    Entrega prevista
-                    <input type="date" id="pedido-entrega">
-                </label>
-                <label class="full">
-                    Observações
-                    <input type="text" id="pedido-observacoes" maxlength="500">
-                </label>
-
-                <div class="full bloco-itens">
-                    <div class="bloco-itens__titulo">
-                        <h3>Itens do pedido</h3>
-                        <button type="button" id="adicionar-item" class="btn-secundario">+ Adicionar item</button>
+    <div id="app">
+        <div id="login-screen" class="login-wrapper">
+            <section class="login-shell">
+                <div class="login-panel">
+                    <div class="brand-lockup">
+                        <div>
+                            <h1>JC Lavanderia</h1>
+                            <p>Gestão operacional</p>
+                        </div>
                     </div>
-                    <div id="pedido-itens"></div>
+
+                    <form id="login-form" class="login-form">
+                        <label class="input-group" for="username">
+                            <span>Usuário</span>
+                            <input type="text" id="username" autocomplete="username" required>
+                        </label>
+                        <label class="input-group" for="password">
+                            <span>Senha</span>
+                            <input type="password" id="password" autocomplete="current-password" required>
+                        </label>
+                        <button type="submit" class="btn-login">Entrar</button>
+                        <div id="login-error" class="login-error"></div>
+                    </form>
+
+                    <div class="login-hint">admin / 1234</div>
                 </div>
 
-                <button type="submit">Criar pedido</button>
-            </form>
-            <div id="pedido-feedback" class="feedback"></div>
-        </section>
+                <aside class="login-side">
+                    <img class="company-photo" src="/empresa-login.webp" alt="Fachada da JC Lavanderia">
+                </aside>
+            </section>
+        </div>
 
-        <section class="card card--full">
-            <h2>Listagem de Pedidos</h2>
-            <div id="pedidos-lista" class="pedidos-lista"></div>
-        </section>
-    </main>
+        <div id="main-screen" class="dashboard">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="brand-mark small">JC</div>
+                    <div>
+                        <strong>JC Lavanderia</strong>
+                        <span>Operação</span>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav" aria-label="Navegação principal">
+                    <button class="nav-item active" data-page="pedidos">
+                        <span class="nav-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                                <path d="M8 6h13M8 12h13M8 18h13"/>
+                                <path d="M3 6h.01M3 12h.01M3 18h.01"/>
+                            </svg>
+                        </span>
+                        <span>Pedidos</span>
+                    </button>
+                    <button class="nav-item" data-page="clientes">
+                        <span class="nav-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                        </span>
+                        <span>Clientes</span>
+                    </button>
+                    <button class="nav-item" data-page="materiais">
+                        <span class="nav-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                                <path d="m21 16-9 5-9-5"/>
+                                <path d="m21 12-9 5-9-5"/>
+                                <path d="m21 8-9 5-9-5 9-5 9 5Z"/>
+                            </svg>
+                        </span>
+                        <span>Materiais</span>
+                    </button>
+                    <button class="nav-item" data-page="semana">
+                        <span class="nav-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                <path d="M16 2v4M8 2v4M3 10h18"/>
+                            </svg>
+                        </span>
+                        <span>Semana</span>
+                    </button>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="user-info">
+                        <div class="user-avatar">A</div>
+                        <div>
+                            <span id="user-name">Administrador</span>
+                            <small>Online</small>
+                        </div>
+                    </div>
+                    <button id="logout-btn" class="btn-logout" title="Sair" aria-label="Sair">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <path d="m16 17 5-5-5-5M21 12H9"/>
+                        </svg>
+                    </button>
+                </div>
+            </aside>
+
+            <main class="main-content">
+                <header class="content-header">
+                    <div>
+                        <span class="eyebrow">Painel administrativo</span>
+                        <h2 id="page-title">Pedidos</h2>
+                    </div>
+                    <div class="header-date" id="current-date"></div>
+                </header>
+
+                <section class="metrics-grid" aria-label="Indicadores">
+                    <article class="metric-card">
+                        <span>Pedidos ativos</span>
+                        <strong id="kpi-active">0</strong>
+                    </article>
+                    <article class="metric-card accent-teal">
+                        <span>Prontos</span>
+                        <strong id="kpi-ready">0</strong>
+                    </article>
+                    <article class="metric-card accent-blue">
+                        <span>Entregues</span>
+                        <strong id="kpi-delivered">0</strong>
+                    </article>
+                    <article class="metric-card accent-amber">
+                        <span>Clientes</span>
+                        <strong id="kpi-clients">0</strong>
+                    </article>
+                </section>
+
+                <nav class="mobile-nav" aria-label="Navegação mobile">
+                    <button class="nav-item active" data-page="pedidos">Pedidos</button>
+                    <button class="nav-item" data-page="clientes">Clientes</button>
+                    <button class="nav-item" data-page="materiais">Materiais</button>
+                    <button class="nav-item" data-page="semana">Semana</button>
+                </nav>
+
+                <div id="page-pedidos" class="page-content active">
+                    <section class="work-grid">
+                        <section class="panel panel-form">
+                            <div class="panel-header">
+                                <h3>Novo Pedido</h3>
+                                <span>Entrada</span>
+                            </div>
+                            <form id="pedido-form" class="form-grid">
+                                <div class="form-group">
+                                    <label for="pedido-cliente">Cliente</label>
+                                    <select id="pedido-cliente" required></select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="pedido-entrega">Entrega prevista</label>
+                                    <input type="date" id="pedido-entrega">
+                                </div>
+                                <div class="form-group full">
+                                    <label for="pedido-observacoes">Observações</label>
+                                    <input type="text" id="pedido-observacoes">
+                                </div>
+                                <div class="form-group full">
+                                    <label>Itens do pedido</label>
+                                    <div id="pedido-itens" class="itens-container"></div>
+                                    <button type="button" id="adicionar-item" class="btn-add">
+                                        <span>+</span>
+                                        Adicionar item
+                                    </button>
+                                </div>
+                                <button type="submit" class="btn-submit">Criar pedido</button>
+                            </form>
+                            <div id="pedido-feedback" class="feedback"></div>
+                        </section>
+
+                        <section class="panel panel-list">
+                            <div class="panel-header">
+                                <div>
+                                    <h3>Pedidos</h3>
+                                    <span><b id="pedidos-count">0</b> registros</span>
+                                </div>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <button type="button" id="limpar-entregues" class="btn-clear" title="Limpar pedidos entregues">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                        </svg>
+                                        Limpar entregues
+                                    </button>
+                                    <select id="pedido-status-filter" class="compact-select" aria-label="Filtrar por status">
+                                        <option value="">Todos</option>
+                                        <option value="Recebido">Recebidos</option>
+                                        <option value="EmAndamento">Em andamento</option>
+                                        <option value="Pronto">Prontos</option>
+                                        <option value="Entregue">Entregues</option>
+                                        <option value="Cancelado">Cancelados</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="pedidos-lista" class="lista-pedidos"></div>
+                        </section>
+                    </section>
+                </div>
+
+                <div id="page-clientes" class="page-content">
+                    <section class="work-grid">
+                        <section class="panel panel-form">
+                            <div class="panel-header">
+                                <h3>Cadastrar Cliente</h3>
+                                <span>Cadastro</span>
+                            </div>
+                            <form id="cliente-form" class="form-grid">
+                                <div class="form-group">
+                                    <label for="cliente-nome">Nome</label>
+                                    <input type="text" id="cliente-nome" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cliente-telefone">Telefone</label>
+                                    <input type="text" id="cliente-telefone">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cliente-email">E-mail</label>
+                                    <input type="email" id="cliente-email">
+                                </div>
+                                <div class="form-group full">
+                                    <label for="cliente-endereco">Endereço</label>
+                                    <input type="text" id="cliente-endereco">
+                                </div>
+                                <button type="submit" class="btn-submit">Cadastrar cliente</button>
+                            </form>
+                            <div id="cliente-feedback" class="feedback"></div>
+                        </section>
+
+                        <section class="panel panel-list">
+                            <div class="panel-header">
+                                <h3>Clientes</h3>
+                                <span><b id="clientes-count">0</b> registros</span>
+                            </div>
+                            <div id="clientes-lista" class="lista-itens"></div>
+                        </section>
+                    </section>
+                </div>
+
+                <div id="page-materiais" class="page-content">
+                    <section class="work-grid">
+                        <section class="panel panel-form">
+                            <div class="panel-header">
+                                <h3>Cadastrar Material</h3>
+                                <span>Catálogo</span>
+                            </div>
+                            <form id="material-form" class="form-grid">
+                                <div class="form-group full">
+                                    <label for="material-nome">Nome do material</label>
+                                    <input type="text" id="material-nome" required>
+                                </div>
+                                <div class="form-group full">
+                                    <label for="material-descricao">Descrição</label>
+                                    <input type="text" id="material-descricao">
+                                </div>
+                                <button type="submit" class="btn-submit">Cadastrar material</button>
+                            </form>
+                            <div id="material-feedback" class="feedback"></div>
+                        </section>
+
+                        <section class="panel panel-list">
+                            <div class="panel-header">
+                                <h3>Materiais</h3>
+                                <span><b id="materiais-count">0</b> registros</span>
+                            </div>
+                            <div id="materiais-lista" class="lista-itens"></div>
+                        </section>
+                    </section>
+                </div>
+
+                <div id="page-semana" class="page-content">
+                    <section class="work-grid">
+                        <section class="panel full">
+                            <div class="panel-header">
+                                <div>
+                                    <h3>Pedidos da Semana</h3>
+                                    <span>Visão geral dos pedidos</span>
+                                </div>
+                                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                    <select id="semana-semana-filter" class="compact-select" aria-label="Selecionar semana">
+                                        <option value="0">Esta semana</option>
+                                        <option value="-1">Semana passada</option>
+                                        <option value="1">Próxima semana</option>
+                                    </select>
+                                    <select id="semana-dia-filter" class="compact-select" aria-label="Filtrar por dia">
+                                        <option value="">Todos os dias</option>
+                                        <option value="0">Domingo</option>
+                                        <option value="1">Segunda-feira</option>
+                                        <option value="2">Terça-feira</option>
+                                        <option value="3">Quarta-feira</option>
+                                        <option value="4">Quinta-feira</option>
+                                        <option value="5">Sexta-feira</option>
+                                        <option value="6">Sábado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="semana-lista" class="semana-grid"></div>
+                        </section>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
 
     <script src="/app.js"></script>
 </body>
 </html>
+

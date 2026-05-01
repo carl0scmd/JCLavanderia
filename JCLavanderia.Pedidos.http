@@ -1,6 +1,64 @@
-@JCLavanderia.Pedidos_HostAddress = http://localhost:5185
+﻿@HostAddress = http://localhost:5185
 
-GET {{JCLavanderia.Pedidos_HostAddress}}/weatherforecast/
+GET {{HostAddress}}/api/clientes?page=1&pageSize=20
 Accept: application/json
 
 ###
+
+POST {{HostAddress}}/api/clientes
+Content-Type: application/json
+
+{
+  "nome": "Cliente Exemplo",
+  "telefone": "(11) 99999-9999",
+  "email": "cliente@example.com",
+  "endereco": "Rua Exemplo, 123"
+}
+
+###
+
+GET {{HostAddress}}/api/materiais?page=1&pageSize=20
+Accept: application/json
+
+###
+
+POST {{HostAddress}}/api/materiais
+Content-Type: application/json
+
+{
+  "nome": "Toalha de Banho",
+  "descricao": "Toalha padrão banho"
+}
+
+###
+
+GET {{HostAddress}}/api/pedidos?page=1&pageSize=20
+Accept: application/json
+
+###
+
+POST {{HostAddress}}/api/pedidos
+Content-Type: application/json
+
+{
+  "clienteId": 1,
+  "dataEntregaPrevista": null,
+  "observacoes": "Pedido de teste",
+  "itens": [
+    {
+      "materialId": 1,
+      "quantidade": 10,
+      "observacao": null
+    }
+  ]
+}
+
+###
+
+PUT {{HostAddress}}/api/pedidos/1/status
+Content-Type: application/json
+
+{
+  "status": "EmAndamento"
+}
+

@@ -5,27 +5,27 @@ namespace JCLavanderia.Pedidos.DTOs;
 
 public class CriarPedidoItemRequest
 {
-    [Range(1, int.MaxValue)]
+    [Range(1, int.MaxValue, ErrorMessage = "Material é obrigatório")]
     public int MaterialId { get; set; }
 
-    [Range(1, int.MaxValue)]
+    [Range(1, int.MaxValue, ErrorMessage = "Quantidade deve ser maior que zero")]
     public int Quantidade { get; set; }
 
-    [StringLength(300)]
+    [StringLength(300, ErrorMessage = "Observação deve ter no máximo 300 caracteres")]
     public string? Observacao { get; set; }
 }
 
 public class CriarPedidoRequest
 {
-    [Range(1, int.MaxValue)]
+    [Range(1, int.MaxValue, ErrorMessage = "Cliente é obrigatório")]
     public int ClienteId { get; set; }
 
     public DateTime? DataEntregaPrevista { get; set; }
 
-    [StringLength(500)]
+    [StringLength(500, ErrorMessage = "Observações devem ter no máximo 500 caracteres")]
     public string? Observacoes { get; set; }
 
-    [MinLength(1)]
+    [MinLength(1, ErrorMessage = "Inclua ao menos um item no pedido")]
     public List<CriarPedidoItemRequest> Itens { get; set; } = [];
 }
 
@@ -35,51 +35,42 @@ public class AtualizarStatusPedidoRequest
     public PedidoStatus? Status { get; set; }
 }
 
-public class PedidoItemResponse
+public record PedidoItemResponse(
+    int Id,
+    int MaterialId,
+    string MaterialNome,
+    int Quantidade,
+    string? Observacao)
 {
-    public int Id { get; set; }
-    public int MaterialId { get; set; }
-    public string MaterialNome { get; set; } = string.Empty;
-    public int Quantidade { get; set; }
-    public string? Observacao { get; set; }
-
     public static PedidoItemResponse FromEntity(PedidoItem item) =>
-        new()
-        {
-            Id = item.Id,
-            MaterialId = item.MaterialId,
-            MaterialNome = item.Material.Nome,
-            Quantidade = item.Quantidade,
-            Observacao = item.Observacao
-        };
+        new(item.Id, item.MaterialId, item.Material.Nome, item.Quantidade, item.Observacao);
 }
 
-public class PedidoResponse
+public record PedidoResponse(
+    int Id,
+    int ClienteId,
+    string ClienteNome,
+    PedidoStatus Status,
+    DateTime CriadoEm,
+    DateTime AtualizadoEm,
+    DateTime? DataEntregaPrevista,
+    string? Observacoes,
+    int QuantidadeTotalItens,
+    List<PedidoItemResponse> Itens)
 {
-    public int Id { get; set; }
-    public int ClienteId { get; set; }
-    public string ClienteNome { get; set; } = string.Empty;
-    public PedidoStatus Status { get; set; }
-    public DateTime CriadoEm { get; set; }
-    public DateTime? DataEntregaPrevista { get; set; }
-    public string? Observacoes { get; set; }
-    public int QuantidadeTotalItens { get; set; }
-    public List<PedidoItemResponse> Itens { get; set; } = [];
-
     public static PedidoResponse FromEntity(Pedido pedido)
     {
         var itens = pedido.Itens.Select(PedidoItemResponse.FromEntity).ToList();
-        return new PedidoResponse
-        {
-            Id = pedido.Id,
-            ClienteId = pedido.ClienteId,
-            ClienteNome = pedido.Cliente.Nome,
-            Status = pedido.Status,
-            CriadoEm = pedido.CriadoEm,
-            DataEntregaPrevista = pedido.DataEntregaPrevista,
-            Observacoes = pedido.Observacoes,
-            QuantidadeTotalItens = itens.Sum(i => i.Quantidade),
-            Itens = itens
-        };
+        return new PedidoResponse(
+            pedido.Id,
+            pedido.ClienteId,
+            pedido.Cliente.Nome,
+            pedido.Status,
+            pedido.CriadoEm,
+            pedido.AtualizadoEm,
+            pedido.DataEntregaPrevista,
+            pedido.Observacoes,
+            itens.Sum(i => i.Quantidade),
+            itens);
     }
 }

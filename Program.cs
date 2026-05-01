@@ -1,11 +1,17 @@
 using System.Text.Json.Serialization;
 using JCLavanderia.Pedidos.Data;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using MySql.EntityFrameworkCore.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' não configurada.");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseMySQL(connectionString));
 
 builder.Services
     .AddControllers()
@@ -15,8 +21,21 @@ builder.Services
     });
 
 builder.Services.AddOpenApi();
+builder.Services.AddLogging();
 
 var app = builder.Build();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+        logger.LogError(exception, "Unhandled exception occurred");
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsJsonAsync(new { message = "Erro interno do servidor." });
+    });
+});
 
 using (var scope = app.Services.CreateScope())
 {
