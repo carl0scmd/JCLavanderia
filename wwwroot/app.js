@@ -25,7 +25,8 @@ const estado = {
     clientes: [],
     materiais: [],
     pedidos: [],
-    pedidosOcultos: new Set(JSON.parse(localStorage.getItem("jc_pedidos_ocultos") || "[]"))
+    pedidosOcultos: new Set(JSON.parse(localStorage.getItem("jc_pedidos_ocultos") || "[]")),
+    pedidosOcultosSemana: new Set(JSON.parse(localStorage.getItem("jc_semana_ocultos") || "[]"))
 };
 
 const ui = {
@@ -144,8 +145,7 @@ function registrarEventos() {
     semanaLista?.addEventListener("click", async (e) => {
         if (e.target.classList.contains("btn-remove-mini") || e.target.closest(".btn-remove-mini")) {
             const btn = e.target.classList.contains("btn-remove-mini") ? e.target : e.target.closest(".btn-remove-mini");
-            await removerPedido(Number(btn.dataset.removeId));
-            await carregarSemana();
+            removerPedidoDaSemana(Number(btn.dataset.removeId));
             return;
         }
 
@@ -519,7 +519,9 @@ function renderizarSemana() {
 
     const pedidosSemana = estado.pedidos.filter(p => {
         const dataPedido = new Date(p.criadoEm);
-        return dataPedido >= inicioSemana && dataPedido < new Date(inicioSemana.getTime() + 7 * 24 * 60 * 60 * 1000);
+        return !estado.pedidosOcultosSemana.has(p.id) &&
+            dataPedido >= inicioSemana &&
+            dataPedido < new Date(inicioSemana.getTime() + 7 * 24 * 60 * 60 * 1000);
     });
 
     const dias = [];
@@ -554,13 +556,11 @@ function renderizarSemana() {
                         <span class="pedido-cliente">${escapeHtml(p.clienteNome)}</span>
                         <div class="pedido-mini-actions">
                             <span class="pedido-status status-${normalizarStatusClasse(p.status)}">${obterStatusLabel(p.status)}</span>
-                            ${p.status !== "Entregue" ? `
-                                <button type="button" class="btn-remove-mini" data-remove-id="${p.id}" title="Excluir">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                    </svg>
-                                </button>
-                            ` : ""}
+                            <button type="button" class="btn-remove-mini" data-remove-id="${p.id}" title="Remover da Semana">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                            </button>
                         </div>
                     </article>
                     <div class="pedido-detalhe-semana" id="pedido-detalhe-${p.id}" hidden></div>
@@ -568,6 +568,12 @@ function renderizarSemana() {
             </div>
         </div>
     `).join("");
+}
+
+function removerPedidoDaSemana(pedidoId) {
+    estado.pedidosOcultosSemana.add(pedidoId);
+    salvarPedidosOcultosSemana();
+    renderizarSemana();
 }
 
 function alternarDetalheSemana(pedidoId) {
@@ -693,6 +699,10 @@ function renderizarPedidos() {
 
 function salvarPedidosOcultos() {
     localStorage.setItem("jc_pedidos_ocultos", JSON.stringify([...estado.pedidosOcultos]));
+}
+
+function salvarPedidosOcultosSemana() {
+    localStorage.setItem("jc_semana_ocultos", JSON.stringify([...estado.pedidosOcultosSemana]));
 }
 
 function atualizarIndicadores() {
