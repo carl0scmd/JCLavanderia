@@ -551,7 +551,6 @@ function renderizarSemana() {
                 ${dia.pedidos.length === 0 ? "<p class='vazio'>Nenhum pedido</p>" :
                 dia.pedidos.map(p => `
                     <article class="pedido-card-mini" data-pedido-id="${p.id}" role="button" tabindex="0">
-                        <span class="pedido-id">#${p.id}</span>
                         <span class="pedido-cliente">${escapeHtml(p.clienteNome)}</span>
                         <div class="pedido-mini-actions">
                             <span class="pedido-status status-${normalizarStatusClasse(p.status)}">${obterStatusLabel(p.status)}</span>
