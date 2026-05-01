@@ -3,6 +3,7 @@ using JCLavanderia.Pedidos.Data;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
 using MySql.EntityFrameworkCore.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,8 +40,20 @@ app.UseExceptionHandler(errorApp =>
 
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.EnsureCreated();
+    try
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        dbContext.Database.EnsureCreated();
+    }
+    catch (MySqlException exception)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogCritical("Nao foi possivel conectar ao MySQL: {Message}", exception.Message);
+        Console.Error.WriteLine("Nao foi possivel conectar ao MySQL.");
+        Console.Error.WriteLine("Verifique se o MySQL esta rodando e se a connection string em appsettings.json esta correta.");
+        Console.Error.WriteLine($"ConnectionString atual: {connectionString}");
+        return;
+    }
 }
 
 if (app.Environment.IsDevelopment())

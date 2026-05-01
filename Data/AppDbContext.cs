@@ -66,8 +66,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(e => e.Status)
                 .HasColumnName("status")
                 .HasConversion<string>()
-                .HasMaxLength(50)
-                .HasDefaultValue(PedidoStatus.Recebido);
+                .HasMaxLength(50);
             entity.Property(e => e.Observacoes).HasColumnName("observacoes").HasMaxLength(500);
             entity.Property(e => e.CriadoEm)
                 .HasColumnName("criado_em")
