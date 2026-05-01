@@ -1,5 +1,6 @@
 bin/
 obj/
 .dotnet/
+.mysql/
 build-check-output/
 .vs/

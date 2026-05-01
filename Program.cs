@@ -11,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' não configurada.");
 
+LocalMySqlServer.EnsureStarted(connectionString, builder.Environment.ContentRootPath, builder.Configuration);
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySQL(connectionString));
 

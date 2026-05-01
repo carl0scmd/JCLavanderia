@@ -33,7 +33,6 @@ Sistema web para gestao operacional da JC Lavanderia, com cadastro de clientes, 
 Antes de rodar o projeto, instale:
 
 - .NET 10 SDK
-- MySQL Server 8.0 ou superior
 - Git
 
 Confirme se o .NET esta instalado:
@@ -42,11 +41,7 @@ Confirme se o .NET esta instalado:
 dotnet --version
 ```
 
-Confirme se o MySQL esta acessivel:
-
-```bash
-mysql --version
-```
+Em desenvolvimento, o proprio projeto baixa e inicia um MySQL local portatil na pasta `.mysql` quando voce roda `dotnet run`.
 
 ## Como Rodar o Projeto
 
@@ -57,47 +52,42 @@ git clone https://github.com/carl0scmd/JCLavanderia.git
 cd JCLavanderia
 ```
 
-### 2. Criar o banco de dados MySQL
+### 2. Configurar a connection string
 
-Execute o script SQL que esta na pasta `scripts`:
-
-```bash
-mysql -u root -p < scripts/mysql-schema.sql
-```
-
-Esse script cria o banco `jc_lavanderia`, as tabelas principais e alguns materiais iniciais.
-
-### 3. Configurar a connection string
-
-Abra o arquivo `appsettings.json` e ajuste usuario, senha, host e porta conforme seu MySQL local:
+Por padrao o projeto usa o MySQL local portatil na porta `3307`:
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "server=localhost;port=3306;database=jc_lavanderia;user=root;password=sua_senha;charset=utf8mb4;"
+    "DefaultConnection": "server=127.0.0.1;port=3307;database=jc_lavanderia;user=root;password=;charset=utf8mb4;"
+  },
+  "LocalMySql": {
+    "AutoStart": true
   }
 }
 ```
 
-Se o usuario `root` nao tiver senha no seu ambiente, deixe `password=;`.
+Se quiser usar um MySQL instalado manualmente, altere a connection string e defina `LocalMySql:AutoStart` como `false`.
 
-### 4. Restaurar dependencias
+### 3. Restaurar dependencias
 
 ```bash
 dotnet restore
 ```
 
-### 5. Compilar o projeto
+### 4. Compilar o projeto
 
 ```bash
 dotnet build
 ```
 
-### 6. Executar a aplicacao
+### 5. Executar a aplicacao
 
 ```bash
 dotnet run
 ```
+
+Na primeira execucao, o projeto pode demorar um pouco porque baixa e inicializa o MySQL local. Depois disso, basta rodar `dotnet run`.
 
 Pelos perfis do projeto, a aplicacao fica disponivel em:
 
@@ -133,7 +123,7 @@ Tabelas principais:
 - `pedidos`
 - `itens_pedido`
 
-O Entity Framework tambem usa `EnsureCreated()` na inicializacao para criar tabelas ausentes a partir do modelo, mas o caminho recomendado para preparar o banco e executar `scripts/mysql-schema.sql`.
+O Entity Framework usa `EnsureCreated()` na inicializacao para criar o banco e as tabelas ausentes. O script `scripts/mysql-schema.sql` fica disponivel caso voce prefira criar o banco manualmente em um servidor MySQL externo.
 
 ## Principais Endpoints
 
