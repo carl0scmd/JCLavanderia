@@ -549,11 +549,9 @@ function renderizarSemana() {
                 ${dia.pedidos.length === 0 ? "<p class='vazio'>Nenhum pedido</p>" :
                 dia.pedidos.map(p => `
                     <article class="pedido-card-mini">
-                        <div>
-                            <span class="pedido-id">#${p.id}</span>
-                            <span class="pedido-cliente">${escapeHtml(p.clienteNome)}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="pedido-id">#${p.id}</span>
+                        <span class="pedido-cliente">${escapeHtml(p.clienteNome)}</span>
+                        <div class="pedido-mini-actions">
                             <span class="pedido-status status-${normalizarStatusClasse(p.status)}">${obterStatusLabel(p.status)}</span>
                             ${p.status !== "Entregue" ? `
                                 <button type="button" class="btn-remove-mini" data-remove-id="${p.id}" title="Excluir">

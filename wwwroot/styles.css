@@ -1030,9 +1030,9 @@ svg {
 
 .pedido-card-mini {
     display: grid;
-    grid-template-columns: 48px 1fr auto;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
     gap: 10px;
-    align-items: center;
+    align-items: start;
     padding: 10px 12px;
     background: var(--bg);
     border-radius: var(--radius-xs);
@@ -1042,12 +1042,39 @@ svg {
 .pedido-card-mini .pedido-id {
     font-weight: 600;
     color: var(--text);
+    line-height: 1.35;
+}
+
+.pedido-card-mini .pedido-cliente {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    line-height: 1.35;
 }
 
 .pedido-card-mini .pedido-status {
     font-size: 0.75rem;
     padding: 2px 8px;
     border-radius: 4px;
+}
+
+.pedido-mini-actions {
+    min-width: max-content;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+@media (max-width: 620px) {
+    .pedido-card-mini {
+        grid-template-columns: 44px minmax(0, 1fr);
+    }
+
+    .pedido-mini-actions {
+        grid-column: 2;
+        justify-content: flex-start;
+    }
 }
 
 .btn-remove-mini {
