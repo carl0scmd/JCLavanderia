@@ -24,7 +24,8 @@ const estado = {
     usuario: null,
     clientes: [],
     materiais: [],
-    pedidos: []
+    pedidos: [],
+    pedidosOcultos: new Set(JSON.parse(localStorage.getItem("jc_pedidos_ocultos") || "[]"))
 };
 
 const ui = {
@@ -359,24 +360,19 @@ async function removerPedido(pedidoId) {
 }
 
 async function limparEntregues() {
-    const entregues = estado.pedidos.filter(p => p.status === "Entregue");
+    const entregues = estado.pedidos.filter(p => p.status === "Entregue" && !estado.pedidosOcultos.has(p.id));
     if (entregues.length === 0) {
         alert("Nenhum pedido entregue para limpar.");
         return;
     }
 
-    if (!confirm(`Tem certeza que deseja excluir todos os ${entregues.length} pedidos entregues? Esta ação não pode ser desfeita.`)) {
+    if (!confirm(`Remover ${entregues.length} pedidos entregues apenas da lista de Pedidos? Eles continuarão na Semana.`)) {
         return;
     }
 
-    try {
-        for (const pedido of entregues) {
-            await requisicaoJson(`/api/pedidos/${pedido.id}`, "DELETE");
-        }
-        await carregarPedidos();
-    } catch (erro) {
-        alert(`Erro: ${erro.message}`);
-    }
+    entregues.forEach(pedido => estado.pedidosOcultos.add(pedido.id));
+    salvarPedidosOcultos();
+    renderizarPedidos();
 }
 
 async function removerCliente(id) {
@@ -578,7 +574,8 @@ function renderizarPedidos() {
     const lista = document.getElementById("pedidos-lista");
     const count = document.getElementById("pedidos-count");
     const filtro = ui.pedidoStatusFilter?.value || "";
-    const pedidos = filtro ? estado.pedidos.filter(p => p.status === filtro) : estado.pedidos;
+    const pedidosVisiveis = estado.pedidos.filter(p => !estado.pedidosOcultos.has(p.id));
+    const pedidos = filtro ? pedidosVisiveis.filter(p => p.status === filtro) : pedidosVisiveis;
 
     if (count) count.textContent = pedidos.length;
     if (!lista) return;
@@ -630,6 +627,10 @@ function renderizarPedidos() {
             </article>
         `;
     }).join("");
+}
+
+function salvarPedidosOcultos() {
+    localStorage.setItem("jc_pedidos_ocultos", JSON.stringify([...estado.pedidosOcultos]));
 }
 
 function atualizarIndicadores() {
