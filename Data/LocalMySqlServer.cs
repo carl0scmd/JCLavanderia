@@ -22,8 +22,9 @@ internal static class LocalMySqlServer
         var connection = new MySqlConnectionStringBuilder(connectionString);
         var host = string.IsNullOrWhiteSpace(connection.Server) ? "127.0.0.1" : connection.Server;
         var port = (int)connection.Port;
+        var probeHost = IsLocalHost(host) ? "127.0.0.1" : host;
 
-        if (!IsLocalHost(host) || IsPortOpen(host, port, TimeSpan.FromMilliseconds(500)))
+        if (!IsLocalHost(host) || IsPortOpen(probeHost, port, TimeSpan.FromMilliseconds(500)))
         {
             return;
         }
@@ -36,7 +37,7 @@ internal static class LocalMySqlServer
         EnsureDistribution(mysqlRoot, mysqlHome, mysqldPath);
         EnsureDataDirectory(mysqldPath, mysqlHome, dataDir);
         StartServer(mysqldPath, mysqlHome, dataDir, port, mysqlRoot);
-        WaitForServer(host, port);
+        WaitForServer(probeHost, port);
     }
 
     private static bool IsLocalHost(string host) =>
@@ -104,7 +105,7 @@ internal static class LocalMySqlServer
         var errorLog = Path.Combine(mysqlRoot, "mysql-error.log");
         var arguments =
             $"--no-defaults --basedir=\"{mysqlHome}\" --datadir=\"{dataDir}\" --port={port} " +
-            $"--bind-address=127.0.0.1 --mysqlx=0 --skip-name-resolve --log-error=\"{errorLog}\"";
+            $"--bind-address=127.0.0.1 --mysqlx=0 --log-error=\"{errorLog}\"";
 
         RunProcess(mysqldPath, arguments, waitForExit: false);
     }
