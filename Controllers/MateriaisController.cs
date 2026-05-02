@@ -94,17 +94,24 @@ public class MateriaisController(AppDbContext context) : ControllerBase
                 .ToListAsync();
 
         var itensParaRemover = await context.PedidoItens
-            .Where(i => i.MaterialId == id && !pedidoIdsParaExcluir.Contains(i.PedidoId))
+            .Where(i => i.MaterialId == id)
             .ToListAsync();
 
         var pedidosParaExcluir = await context.Pedidos
             .Where(p => pedidoIdsParaExcluir.Contains(p.Id))
             .ToListAsync();
 
+        await using var transaction = await context.Database.BeginTransactionAsync();
+
         context.PedidoItens.RemoveRange(itensParaRemover);
+        await context.SaveChangesAsync();
+
         context.Pedidos.RemoveRange(pedidosParaExcluir);
+        await context.SaveChangesAsync();
+
         context.Materiais.Remove(material);
         await context.SaveChangesAsync();
+        await transaction.CommitAsync();
 
         return NoContent();
     }

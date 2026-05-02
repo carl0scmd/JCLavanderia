@@ -8,3 +8,4 @@ build-check-output/
 .run-test.*
 
 .run-check.*
+.run-final.*
