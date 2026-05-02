@@ -2,6 +2,10 @@
 
 Sistema web para gestao operacional da JC Lavanderia, com cadastro de clientes, cadastro de materiais/servicos, criacao de pedidos com itens, acompanhamento de status e visao semanal dos pedidos. O projeto usa uma API REST em ASP.NET Core 10, frontend SPA em HTML/CSS/JavaScript puro e banco de dados MySQL.
 
+## Screenshot
+
+![Tela do sistema JC Lavanderia](docs/screenshot.png)
+
 ## Tecnologias Usadas
 
 | Camada | Tecnologia |

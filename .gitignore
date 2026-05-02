@@ -9,3 +9,4 @@ build-check-output/
 
 .run-check.*
 .run-final.*
+.screenshot-run.*
