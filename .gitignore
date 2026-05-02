@@ -10,3 +10,5 @@ build-check-output/
 .run-check.*
 .run-final.*
 .screenshot-run.*
+.screenshot-full.*
+.chrome-full-screenshot-profile/
